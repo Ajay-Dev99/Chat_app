@@ -6,6 +6,8 @@
     position: relative;
 }
 
+
+
 .togglebutton{
     position: fixed;
     z-index: 1;
@@ -19,7 +21,7 @@
     top: 0;
     left: -250px;
     width: 250px;
-    background-color: #003F62;
+    background-color: #fff;
     transition: left 0.3s ease;
     position: fixed;
     overflow-y: scroll;

@@ -12,33 +12,33 @@ function UsersList() {
 
   const [isVisible, setIsVisible] = useState(false);
   const [users, setUsers] = useState([])
- 
+
 
   const navigate = useNavigate()
 
   useEffect(() => {
-    const fetchData = ()=>{
+    const fetchData = () => {
       try {
         usersList().then((res) => {
           if (res.status === 200) {
             setUsers(res.data)
             setReceiver(res.data[0])
-          } 
+          }
         })
       } catch (error) {
-        console.log("An error occured",error.message)
+        console.log("An error occured", error.message)
       }
     }
 
     fetchData()
 
     return () => {
-      socket.off('message'); 
+      socket.off('message');
     };
   }, [])
 
 
-  
+
 
   const logout = () => {
     localStorage.removeItem("jwt")
@@ -64,11 +64,11 @@ function UsersList() {
           <FaList className='w-[2rem] h-[1.75rem] text-black  ' onClick={toggleVisibility} />
         </div>
         <div className={`mobile-menu flex flex-col text-white ${isVisible ? 'slide-in' : ''}`} style={{ height: '100%' }}>
-          <div className='flex justify-end my-1'><IoCloseCircleOutline className="w-8 h-8" onClick={() => setIsVisible(false)} /></div>
+          <div className='flex justify-end my-1'><IoCloseCircleOutline className="w-8 h-8 text-black" onClick={() => setIsVisible(false)} /></div>
 
           <div className='w-full my-2 relative'>
             <input type="search" className="block w-full p-3 text-sm text-black rounded-xl bg-white " placeholder="Search User" />
-            <button className="text-white absolute end-0 bottom-0 bg-[#EDA415]  font-medium rounded-xl text-sm px-4 md:px-9 py-3">Search</button>
+            <button className="text-black absolute end-0 bottom-0 bg-[#EDA415]  font-medium rounded-xl text-sm px-4 md:px-9 py-3">Search</button>
           </div>
 
           <div className='flex-grow overflow-y-auto'>
@@ -76,7 +76,7 @@ function UsersList() {
               <div key={user._id} onClick={() => {
                 selectUser(user)
                 toggleVisibility()
-              }}  className={` py-2 ps-4 flex justify-start  gap-2 text-xl  cursor-pointer items-center ${user === Receiver ? "bg-[#5c7c8e]" : ""}`}>
+              }} className={` py-2 ps-4 flex justify-start  gap-2 text-xl  cursor-pointer items-center text-black ${user === Receiver ? "bg-[#c1c1c1]" : ""}`}>
                 <img src="https://www.shutterstock.com/image-vector/flat-user-icon-on-website-260nw-1210365988.jpg" className='h-12 w-12 rounded-full' alt="userimage" />
                 <p>{user.name}</p>
               </div>
@@ -104,18 +104,18 @@ function UsersList() {
         <div className='w-1/5 fixed p-2 top-0 h-1/8 bg-[#003F62]'>
           <div className="relative">
             <input type="search" className="block w-full p-3 text-sm text-black  rounded-xl bg-white " placeholder="Search User" />
-            <button className="text-white absolute end-0 bottom-0 bg-[#EDA415]  font-medium rounded-xl text-sm px-4 md:px-9 py-3">Search</button>
+            <button className="text-black absolute end-0 bottom-0 bg-[#EDA415]  font-medium rounded-xl text-sm px-4 md:px-9 py-3">Search</button>
           </div>
         </div>
 
         {/* UsersLIst  */}
         <div className='py-9 6/8 flex flex-col gap-4'>
           {users && users.map((userObj) => (
-            <div key={userObj._id} onClick={() => selectUser(userObj)} className={` py-2 ps-4 flex justify-start  gap-2 text-xl  cursor-pointer items-center ${userObj === Receiver ? "bg-[#5c7c8e]" : ""}`}>
+            <div key={userObj._id} onClick={() => selectUser(userObj)} className={` py-2 ps-4 flex justify-start  gap-2 text-xl  cursor-pointer items-center ${userObj === Receiver ? "bg-[#c1c1c1]" : ""}`}>
               <img src="https://www.shutterstock.com/image-vector/flat-user-icon-on-website-260nw-1210365988.jpg" className='h-14 w-14 rounded-full object-cover' alt="" />
               <div>
                 <p className='tex-lg'>{userObj.name}</p>
-                <span className='text-sm text-gray-400 text-wrap'>this is last message....</span>
+                <span className='text-sm text-black text-wrap'>this is last message....</span>
               </div>
               <div>
                 <span className='text-sm'>12/23/23</span>

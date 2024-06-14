@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt")
 const jwt = require('jsonwebtoken');
 const Rooms = require("../Model/roomModel");
 const messageModel = require("../Model/messageModel");
+const mongoose = require("mongoose");
 const maxAge = 3 * 24 * 60 * 60;
 
 
@@ -39,7 +40,7 @@ const register = async (req, res, next) => {
         await newUser.save();
 
         const token = await createToken(newUser._id);
-        res.status(200).json({ status: 1, message: "User Added Successfully", token ,userId:newUser._id});
+        res.status(200).json({ status: 1, message: "User Added Successfully", token, userId: newUser._id });
 
     } catch (error) {
         res.status(error.status || 500).json({ error: error.message || "Internal Server Error" })
@@ -107,21 +108,56 @@ const findRoomId = async (req, res, next) => {
     }
 }
 
+
 const messageList = async (req, res, next) => {
     try {
         const { roomId } = req.body;
+
         if (roomId) {
-            const messages = await messageModel.find({ roomId })
+            const messages = await messageModel.aggregate([
+                { $match: { roomId: new mongoose.Types.ObjectId(roomId) } },
+                {
+                    $addFields: {
+                        formattedDate: {
+                            $dateToString: {
+                                format: "%d-%m-%Y",
+                                date: { $toDate: "$timestamp" }
+                            }
+                        }
+                    }
+                },
+                {
+                    $group: {
+                        _id: "$formattedDate",
+                        messages: { $push: "$$ROOT" }
+                    }
+                },
+                { $sort: { _id: -1 } },
+                {
+                    $project: {
+                        _id: 0,
+                        date: "$_id",
+                        messages: 1
+                    }
+                }
+            ]);
+
+            messages.reverse()
+
             if (messages) {
-                return res.status(200).json(messages)
+                return res.status(200).json(messages);
             }
-            return res.status(400).json("RoomId is not valid")
+        } else {
+            return res.status(400).json({ message: "RoomId is required" });
         }
     } catch (error) {
-        console.log(error);
-        res.status(error.status || 500).json({ error: error.message || "Internal Server Error" })
+        console.error(error);
+        res.status(error.status || 500).json({ error: error.message || "Internal Server Error" });
     }
 }
+
+
+
 
 module.exports = {
     register, login, usersList, findRoomId, messageList

@@ -23,7 +23,7 @@ const navigate = useNavigate()
     <UserProvider>
       <div className='flex flex-col h-full'>
         <div className=' flex flex-col md:flex-row'>
-          <div className='overflow-y-auto md:w-1/5 border-r-2 border-black bg-[#074466] text-white '>
+          <div className='overflow-y-auto md:w-1/5 border-r-2 border-black bg-[#fff] text-black '>
             <UsersList />
           </div>
           <div className=' w-full md:w-4/5 h-lvh'>
