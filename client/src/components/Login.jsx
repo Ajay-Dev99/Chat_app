@@ -8,15 +8,15 @@ import { useNavigate } from 'react-router-dom'
 import { UserContext } from '../Contexts/activeUser'
 
 function Login() {
-    const {setSender} = useContext(UserContext)
+    const { setSender } = useContext(UserContext)
     const navigate = useNavigate()
 
-    useEffect(()=>{
+    useEffect(() => {
         const jwtToken = localStorage.getItem("jwt")
-        if(jwtToken){
+        if (jwtToken) {
             navigate("/")
         }
-    },[])
+    }, [])
 
     const initialValues = {
         email: "",
@@ -30,7 +30,7 @@ function Login() {
                     if (res.data) {
                         toast.success("Logedd In Successfully")
                         localStorage.setItem("jwt", res.data.token)
-                        localStorage.setItem("userId",res.data.userId)
+                        localStorage.setItem("userId", res.data.userId)
                         navigate("/")
                         setSender(res.data.userId)
                     }
@@ -39,11 +39,13 @@ function Login() {
                     }
 
                 }).catch((err) => {
+                    console.log(err);
                     toast.error(err.message || "Something went wrong")
                 })
 
             }
         } catch (error) {
+            console.log(error);
             toast.error(error.message || "something went wrong")
         }
 

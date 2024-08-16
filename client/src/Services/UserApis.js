@@ -15,6 +15,6 @@ export const usersList = ()=>{
 export const findRoomId = (users)=>{
     return userInstance.post("/findroomid",users)
 }
-export const getMessages = (roomId)=>{
-    return userInstance.post("/getMessages",{roomId})
+export const getMessages = ({roomId,lastId})=>{
+    return userInstance.post("/getMessages",{roomId,lastId})
 }

@@ -6,6 +6,7 @@ import { usersList } from '../Services/UserApis';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../Contexts/activeUser';
 import socket from '../socket';
+import { toast } from 'react-toastify';
 
 function UsersList() {
   const { Receiver, setReceiver } = useContext(UserContext);
@@ -20,13 +21,17 @@ function UsersList() {
     const fetchData = () => {
       try {
         usersList().then((res) => {
-          if (res.status === 200) {
+          console.log(res,"response");
+          if ( res.status && res.status === 200) {
             setUsers(res.data)
             setReceiver(res.data[0])
           }
+        }).catch((error)=>{
+          console.log(error);
+         toast.error(error.message)
         })
       } catch (error) {
-        console.log("An error occured", error.message)
+      
       }
     }
 

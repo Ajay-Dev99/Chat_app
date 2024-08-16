@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const Rooms = require("../Model/roomModel");
 const messageModel = require("../Model/messageModel");
 const mongoose = require("mongoose");
+// const maxAge = 1;
 const maxAge = 3 * 24 * 60 * 60;
 
 
@@ -33,7 +34,7 @@ const register = async (req, res, next) => {
 
         if (userExists) {
             const error = userExists.email === email ? "Email Already Exists" : "Name Already Exists, Please try another name";
-            return res.status(400).json({ error });
+            return res.status(400).json({ message:error });
         }
 
         const newUser = new userDb({ name, email, password });
@@ -43,7 +44,7 @@ const register = async (req, res, next) => {
         res.status(200).json({ status: 1, message: "User Added Successfully", token, userId: newUser._id });
 
     } catch (error) {
-        res.status(error.status || 500).json({ error: error.message || "Internal Server Error" })
+        res.status(error.status || 500).json({ message: error.message || "Internal Server Error" })
     }
 };
 
@@ -61,14 +62,14 @@ const login = async (req, res, next) => {
                 const token = await createToken(userExist._id)
                 return res.status(200).json({ message: "Login Successfully", token, userId: userExist._id })
             } else {
-                return res.status(400).json({ error: "Password Not Match" })
+                return res.status(400).json({ message: "Password Not Match" })
             }
         } else {
-            return res.status(400).json({ error: "No user Found" })
+            return res.status(400).json({ message: "No user Found" })
         }
 
     } catch (error) {
-        res.status(error.status || 500).json({ error: error.message || "Internal Server Error" })
+        res.status(error.status || 500).json({ message: error.message || "Internal Server Error" })
     }
 }
 
@@ -111,11 +112,22 @@ const findRoomId = async (req, res, next) => {
 
 const messageList = async (req, res, next) => {
     try {
-        const { roomId } = req.body;
+        const { roomId ,lastId,limit=10} = req.body;
+        console.log(req.body,"boydy");
 
+  
         if (roomId) {
+            const matchConditions = { roomId: new mongoose.Types.ObjectId(roomId) };
+            
+            // Add the condition for lastId if it exists
+            if (lastId) {
+                matchConditions._id = { $lt: new mongoose.Types.ObjectId(lastId) };
+            }
+
             const messages = await messageModel.aggregate([
-                { $match: { roomId: new mongoose.Types.ObjectId(roomId) } },
+                { $match: matchConditions },
+                { $sort: { timestamp: -1 } }, // Sort messages by timestamp in descending order
+                { $limit: limit }, // Limit the total number of messages
                 {
                     $addFields: {
                         formattedDate: {
@@ -137,12 +149,14 @@ const messageList = async (req, res, next) => {
                     $project: {
                         _id: 0,
                         date: "$_id",
-                        messages: 1
+                        messages: { $reverseArray: "$messages" }
                     }
                 }
             ]);
 
-            messages.reverse()
+            console.log(messages,"Messages in the");
+
+            messages.reverse();
 
             if (messages) {
                 return res.status(200).json(messages);
@@ -155,6 +169,52 @@ const messageList = async (req, res, next) => {
         res.status(error.status || 500).json({ error: error.message || "Internal Server Error" });
     }
 }
+// const messageList = async (req, res, next) => {
+//     try {
+//         const { roomId ,lastId,limit=10} = req.body;
+
+//         if (roomId) {
+//             const messages = await messageModel.aggregate([
+//                 { $match: { roomId: new mongoose.Types.ObjectId(roomId) } },
+//                 {
+//                     $addFields: {
+//                         formattedDate: {
+//                             $dateToString: {
+//                                 format: "%d-%m-%Y",
+//                                 date: { $toDate: "$timestamp" }
+//                             }
+//                         }
+//                     }
+//                 },
+//                 {
+//                     $group: {
+//                         _id: "$formattedDate",
+//                         messages: { $push: "$$ROOT" }
+//                     }
+//                 },
+//                 { $sort: { _id: -1 } },
+//                 {
+//                     $project: {
+//                         _id: 0,
+//                         date: "$_id",
+//                         messages: 1
+//                     }
+//                 }
+//             ]);
+
+//             messages.reverse()
+
+//             if (messages) {
+//                 return res.status(200).json(messages);
+//             }
+//         } else {
+//             return res.status(400).json({ message: "RoomId is required" });
+//         }
+//     } catch (error) {
+//         console.error(error);
+//         res.status(error.status || 500).json({ error: error.message || "Internal Server Error" });
+//     }
+// }
 
 
 
